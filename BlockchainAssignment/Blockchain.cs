@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 
 
+
 namespace BlockchainAssignment
 {
     internal class Blockchain
@@ -150,5 +151,3 @@ namespace BlockchainAssignment
         }
     }
 }
-
-

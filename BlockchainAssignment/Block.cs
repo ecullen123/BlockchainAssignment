@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using BlockchainAssignment.HashCode;
 
@@ -12,31 +13,41 @@ namespace BlockchainAssignment
     {
         public DateTime Timestamp { get; }
         public int Index { get; }
-        public string Hash { get; private set; }
+        public string Hash { get; set; }
         public string PreviousHash { get; }
         public List<Transaction> Transactions { get; }
-        public long Nonce { get; private set; }
+        public long Nonce { get; set; }
         public string MerkleRoot { get; private set; }
         public static int Difficulty { get; } = 4;
         public static decimal Reward { get; } = 50m;
 
-        public Block()
+        /// <summary>
+        /// Core constructor that optionally skips mining.
+        /// </summary>
+        public Block(bool skipMining)
         {
             Index = 0;
             PreviousHash = string.Empty;
             Transactions = new List<Transaction>();
             Timestamp = DateTime.Now;
-            Nonce = 0;
             MerkleRoot = ComputeMerkleRoot(Transactions);
-            Mine();
+            if (!skipMining)
+                Mine();
         }
 
+        /// <summary>
+        /// Default: create genesis block AND mine immediately.
+        /// </summary>
+        public Block() : this(skipMining: false) { }
+
+        /// <summary>
+        /// Create next block from a previous block, reward + pending transactions.
+        /// </summary>
         public Block(Block previousBlock, List<Transaction> pendingTxs, string minerAddress)
         {
             PreviousHash = previousBlock.Hash;
             Index = previousBlock.Index + 1;
             Timestamp = DateTime.Now;
-            Nonce = 0;
 
             // Reward + fees
             decimal totalFees = pendingTxs.Sum(tx => tx.Fee);
@@ -74,19 +85,77 @@ namespace BlockchainAssignment
             return hashes[0];
         }
 
-        private void Mine()
+        /// <summary>
+        /// Performs parallel proof-of-work across all CPU cores.
+        /// </summary>
+        public void Mine()
         {
             string target = new string('0', Difficulty);
-            string candidate;
-            do
+            long nextNonce = -1;
+            string foundHash = null;
+            long foundNonce = 0;
+
+            using (var cts = new CancellationTokenSource())
             {
-                Nonce++;
-                candidate = ComputeHash();
-            } while (!candidate.StartsWith(target));
-            Hash = candidate;
+                int threadCount = Environment.ProcessorCount;
+                var tasks = new Task[threadCount];
+
+                for (int i = 0; i < threadCount; i++)
+                {
+                    tasks[i] = Task.Run(() =>
+                    {
+                        while (!cts.Token.IsCancellationRequested)
+                        {
+                            long nonce = Interlocked.Increment(ref nextNonce);
+                            string hash = ComputeHashForNonce(nonce);
+                            if (hash.StartsWith(target))
+                            {
+                                foundHash = hash;
+                                foundNonce = nonce;
+                                cts.Cancel();
+                                break;
+                            }
+                        }
+                    }, cts.Token);
+                }
+
+                // Wait for all threads to finish, suppress TaskCanceledExceptions
+                try
+                {
+                    Task.WaitAll(tasks);
+                }
+                catch (AggregateException ae)
+                {
+                    ae.Handle(ex => ex is TaskCanceledException);
+                }
+            }
+
+            Nonce = foundNonce;
+            Hash = foundHash;
         }
 
-        private string ComputeHash()
+        /// <summary>
+        /// Original single-threaded mining implementation.
+        /// </summary>
+        public void MineSerial()
+        {
+            string target = new string('0', Difficulty);
+            long nonce = 0;
+            string hash;
+            do
+            {
+                hash = ComputeHashForNonce(nonce++);
+            }
+            while (!hash.StartsWith(target));
+
+            Nonce = nonce - 1;
+            Hash = hash;
+        }
+
+        /// <summary>
+        /// Compute the block hash for a given nonce without modifying state.
+        /// </summary>
+        public string ComputeHashForNonce(long nonce)
         {
             using (SHA256 sha256 = SHA256.Create())
             {
@@ -95,7 +164,8 @@ namespace BlockchainAssignment
                     .Append(Timestamp)
                     .Append(PreviousHash)
                     .Append(MerkleRoot)
-                    .Append(Nonce);
+                    .Append(nonce);
+
                 foreach (var tx in Transactions)
                     raw.Append(tx.Hash);
 
@@ -109,7 +179,7 @@ namespace BlockchainAssignment
 
         public string CalculateHash()
         {
-            return ComputeHash();
+            return ComputeHashForNonce(Nonce);
         }
 
         public string GetBlockData()

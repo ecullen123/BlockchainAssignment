@@ -18,11 +18,11 @@ namespace BlockchainAssignment
         public decimal Fee { get; }
 
         public Transaction(
-            string senderAddress,
-            string recipientAddress,
-            decimal amount,
-            decimal fee,
-            string senderPrivateKey)
+        string senderAddress,
+        string recipientAddress,
+        decimal amount,
+        decimal fee,
+        string senderPrivateKey)
         {
             SenderAddress = senderAddress;
             RecipientAddress = recipientAddress;

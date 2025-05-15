@@ -107,18 +107,18 @@ namespace BlockchainAssignment
             }
 
             // Check sufficient balance
-         //   decimal balance = blockchain.GetBalance(senderPub);
-       //    decimal cost = amount + fee;
-       //     if (balance < cost)
-         //   {
-          //      MessageBox.Show(
-           //        $"Insufficient funds. Your balance is {balance}, but you need {cost}.",
-           //        "Insufficient Funds",
-             //      MessageBoxButtons.OK,
-             //       MessageBoxIcon.Warning
-             //   );
-            //    return;
-         //   }
+         // decimal balance = blockchain.GetBalance(senderPub);
+       //   decimal cost = amount + fee;
+       //   if (balance < cost)
+       //   {
+         //     MessageBox.Show(
+          //        $"Insufficient funds. Your balance is {balance}, but you need {cost}.",
+            //      "Insufficient Funds",
+            //      MessageBoxButtons.OK,
+            //      MessageBoxIcon.Warning
+          //    );
+          //    return;
+        //  }
 
             //All checks passed—create and queue the transaction
             try
@@ -175,7 +175,5 @@ namespace BlockchainAssignment
         }
 
         private void BlockchainApp_Load(object sender, EventArgs e) { }
-
-       
     }
 }
