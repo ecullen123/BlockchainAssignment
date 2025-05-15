@@ -17,9 +17,15 @@ namespace BlockchainAssignment
         public List<Transaction> transactionPool;
         private int transactionsPerBlock = 5;
 
+        // Difficulty‐adjustment parameters
+        private readonly int adjustmentInterval = 5;                             // every 5 blocks
+        private readonly TimeSpan targetBlockInterval = TimeSpan.FromSeconds(60); // desired 60s per block
+        private readonly int minDifficulty = 1;
+        private readonly int maxDifficulty = 10;
 
         public Blockchain()
         {
+            // create and mine genesis block
             blocks = new List<Block> { new Block() };
             transactionPool = new List<Transaction>();
         }
@@ -42,6 +48,46 @@ namespace BlockchainAssignment
             var txs = transactionPool.GetRange(0, n);
             transactionPool.RemoveRange(0, n);
             return txs;
+        }
+
+        /// <summary>
+        /// Mines a new block with the pending transactions and adjusts difficulty.
+        /// </summary>
+        public void AddBlock(string minerAddress)
+        {
+            // Create and mine next block
+            var pending = GetPendingTransactions();
+            var next = new Block(GetLastBlock(), pending, minerAddress);
+            blocks.Add(next);
+
+            // Adjust difficulty based on the time it took to mine the last cycle
+            AdjustDifficulty();
+        }
+
+        /// <summary>
+        /// Every adjustmentInterval blocks, scale difficulty proportionally 
+        /// based on actual vs. expected mining time.
+        /// </summary>
+        private void AdjustDifficulty()
+        {
+            int count = blocks.Count;
+            if (count % adjustmentInterval != 0)
+                return;
+
+            // Block at the start of this cycle
+            var oldBlock = blocks[count - adjustmentInterval];
+            // Most recent block
+            var newBlock = GetLastBlock();
+
+            double actual = (newBlock.Timestamp - oldBlock.Timestamp).TotalSeconds;
+            double expected = targetBlockInterval.TotalSeconds * adjustmentInterval;
+
+            // Proportional retarget: scale difficulty by time ratio
+            double ratio = expected / actual;
+            int diff = (int)Math.Round(Block.Difficulty * ratio);
+
+            // Clamp within bounds
+            Block.Difficulty = Math.Max(minDifficulty, Math.Min(maxDifficulty, diff));
         }
 
         public string ReadAllBlocks()
@@ -128,13 +174,12 @@ namespace BlockchainAssignment
             sb.AppendLine($"Current balance: {bal}");
             return sb.ToString();
         }
-        /// <summary>
-        /// Returns just the numeric balance for an address.
-        /// </summary>
+
         public decimal GetBalance(string address)
         {
             decimal balance = 0m;
             foreach (var block in blocks)
+            {
                 foreach (var tx in block.Transactions)
                 {
                     if (tx.RecipientAddress == address)
@@ -142,6 +187,7 @@ namespace BlockchainAssignment
                     if (tx.SenderAddress == address)
                         balance -= (tx.Amount + tx.Fee);
                 }
+            }
             return balance;
         }
 

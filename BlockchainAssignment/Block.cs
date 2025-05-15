@@ -18,11 +18,13 @@ namespace BlockchainAssignment
         public List<Transaction> Transactions { get; }
         public long Nonce { get; set; }
         public string MerkleRoot { get; private set; }
-        public static int Difficulty { get; } = 4;
+
+        // now mutable
+        public static int Difficulty { get; set; } = 4;
         public static decimal Reward { get; } = 50m;
 
         /// <summary>
-        /// Core constructor that optionally skips mining.
+        /// Genesis or skipMining constructor
         /// </summary>
         public Block(bool skipMining)
         {
@@ -35,13 +37,10 @@ namespace BlockchainAssignment
                 Mine();
         }
 
-        /// <summary>
-        /// Default: create genesis block AND mine immediately.
-        /// </summary>
         public Block() : this(skipMining: false) { }
 
         /// <summary>
-        /// Create next block from a previous block, reward + pending transactions.
+        /// Regular block
         /// </summary>
         public Block(Block previousBlock, List<Transaction> pendingTxs, string minerAddress)
         {
@@ -49,7 +48,7 @@ namespace BlockchainAssignment
             Index = previousBlock.Index + 1;
             Timestamp = DateTime.Now;
 
-            // Reward + fees
+            // reward + fees
             decimal totalFees = pendingTxs.Sum(tx => tx.Fee);
             var rewardTx = new Transaction(
                 "Mine Rewards",
@@ -69,10 +68,10 @@ namespace BlockchainAssignment
         {
             if (txs == null || txs.Count == 0)
                 return string.Empty;
-            List<string> hashes = txs.Select(t => t.Hash).ToList();
+            var hashes = txs.Select(t => t.Hash).ToList();
             while (hashes.Count > 1)
             {
-                List<string> next = new List<string>();
+                var next = new List<string>();
                 for (int i = 0; i < hashes.Count; i += 2)
                 {
                     if (i + 1 < hashes.Count)
@@ -86,7 +85,7 @@ namespace BlockchainAssignment
         }
 
         /// <summary>
-        /// Performs parallel proof-of-work across all CPU cores.
+        /// Parallel PoW
         /// </summary>
         public void Mine()
         {
@@ -97,10 +96,10 @@ namespace BlockchainAssignment
 
             using (var cts = new CancellationTokenSource())
             {
-                int threadCount = Environment.ProcessorCount;
-                var tasks = new Task[threadCount];
+                int cores = Environment.ProcessorCount;
+                var tasks = new Task[cores];
 
-                for (int i = 0; i < threadCount; i++)
+                for (int i = 0; i < cores; i++)
                 {
                     tasks[i] = Task.Run(() =>
                     {
@@ -119,7 +118,6 @@ namespace BlockchainAssignment
                     }, cts.Token);
                 }
 
-                // Wait for all threads to finish, suppress TaskCanceledExceptions
                 try
                 {
                     Task.WaitAll(tasks);
@@ -135,7 +133,7 @@ namespace BlockchainAssignment
         }
 
         /// <summary>
-        /// Original single-threaded mining implementation.
+        /// Original single‐threaded PoW
         /// </summary>
         public void MineSerial()
         {
@@ -145,19 +143,15 @@ namespace BlockchainAssignment
             do
             {
                 hash = ComputeHashForNonce(nonce++);
-            }
-            while (!hash.StartsWith(target));
+            } while (!hash.StartsWith(target));
 
             Nonce = nonce - 1;
             Hash = hash;
         }
 
-        /// <summary>
-        /// Compute the block hash for a given nonce without modifying state.
-        /// </summary>
         public string ComputeHashForNonce(long nonce)
         {
-            using (SHA256 sha256 = SHA256.Create())
+            using (var sha = SHA256.Create())
             {
                 var raw = new StringBuilder()
                     .Append(Index)
@@ -169,7 +163,7 @@ namespace BlockchainAssignment
                 foreach (var tx in Transactions)
                     raw.Append(tx.Hash);
 
-                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(raw.ToString()));
+                byte[] bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(raw.ToString()));
                 var hex = new StringBuilder(bytes.Length * 2);
                 foreach (byte b in bytes)
                     hex.AppendFormat("{0:x2}", b);
@@ -177,10 +171,7 @@ namespace BlockchainAssignment
             }
         }
 
-        public string CalculateHash()
-        {
-            return ComputeHashForNonce(Nonce);
-        }
+        public string CalculateHash() => ComputeHashForNonce(Nonce);
 
         public string GetBlockData()
         {
