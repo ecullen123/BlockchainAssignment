@@ -4,10 +4,9 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
+using System.Text;           // for StringBuilder
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
 
 namespace BlockchainAssignment
 {
@@ -119,20 +118,6 @@ namespace BlockchainAssignment
                 return;
             }
 
-            // Check sufficient balance
-         //   decimal balance = blockchain.GetBalance(senderPub);
-          //  decimal cost = amount + fee;
-          //  if (balance < cost)
-         //   {
-           //     MessageBox.Show(
-             //       $"Insufficient funds. Your balance is {balance}, but you need {cost}.",
-             //       "Insufficient Funds",
-              //      MessageBoxButtons.OK,
-              //      MessageBoxIcon.Warning
-              //  );
-             //   return;
-         //   }
-
             // All checks passed — create and queue the transaction
             try
             {
@@ -159,17 +144,66 @@ namespace BlockchainAssignment
 
         private void btnGenerateBlock_Click(object sender, EventArgs e)
         {
-            // Update the blockchain's selection strategy from the dropdown
-            string choice = cmbPreference.SelectedItem.ToString().Replace(" ", "");
-            blockchain.TxSelectionStrategy = (TransactionSelectionStrategy)
-                Enum.Parse(typeof(TransactionSelectionStrategy), choice);
+            // 1) Update the strategy from the dropdown
+            string choice = cmbPreference.SelectedItem
+                .ToString()
+                .Replace(" ", "");
+            blockchain.TxSelectionStrategy =
+                (TransactionSelectionStrategy)Enum.Parse(
+                    typeof(TransactionSelectionStrategy),
+                    choice
+                );
 
-            // Mine and add the new block
-            blockchain.AddBlock(txtPublicKey.Text.Trim());
+            // 2) Select (and remove) according to strategy
+            var minerAddr = txtPublicKey.Text.Trim();
+            var pending = blockchain.GetPendingTransactions(minerAddr);
 
-            // Update UI
+            // 3) Show the selected transactions
+            var preview = new StringBuilder();
+            preview.AppendLine("→ Selected transactions:");
+            if (pending.Count == 0)
+            {
+                preview.AppendLine("   [none]");
+            }
+            else
+            {
+                foreach (var tx in pending)
+                {
+                    preview.AppendLine(
+                        $"   Amount={tx.Amount}  Fee={tx.Fee}  From={tx.SenderAddress}"
+                    );
+                }
+            }
+            SetOutputText(preview.ToString());
+
+            // 4) Ask user to confirm
+            var result = MessageBox.Show(
+                "Generate block with these transactions?",
+                "Confirm Mining",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question
+            );
+
+            if (result == DialogResult.Yes)
+            {
+                // 5) Actually create & add the block
+                var newBlock = new Block(
+                    blockchain.GetLastBlock(),
+                    pending,
+                    minerAddr
+                );
+                blockchain.blocks.Add(newBlock);
+                SetOutputText("Block mined successfully.");
+            }
+            else
+            {
+                // User cancelled: put pending back into the pool
+                blockchain.transactionPool.InsertRange(0, pending);
+                SetOutputText("Mining cancelled; transactions returned to pool.");
+            }
+
+            // 6) Update UI index range
             numericUpDownIndex.Maximum = blockchain.blocks.Count - 1;
-            SetOutputText(blockchain.GetLastBlock().GetBlockData());
         }
 
         private void btnValidateChain_Click(object sender, EventArgs e)

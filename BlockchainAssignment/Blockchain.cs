@@ -72,7 +72,7 @@ namespace BlockchainAssignment
         /// <summary>
         /// Selects up to transactionsPerBlock from the pool per current strategy.
         /// </summary>
-        private List<Transaction> GetPendingTransactions(string minerAddress)
+        public List<Transaction> GetPendingTransactions(string minerAddress)
         {
             IEnumerable<Transaction> pool = transactionPool;
             List<Transaction> selected;
