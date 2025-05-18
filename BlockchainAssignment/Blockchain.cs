@@ -11,6 +11,15 @@ using System.Threading.Tasks;
 
 namespace BlockchainAssignment
 {
+    public enum TransactionSelectionStrategy
+    {
+        First,
+        Greedy,
+        Altruistic,
+        Random,
+        AddressPreference
+    }
+
     internal class Blockchain
     {
         public List<Block> blocks;
@@ -22,6 +31,10 @@ namespace BlockchainAssignment
         private readonly TimeSpan targetBlockInterval = TimeSpan.FromSeconds(60); // desired 60s per block
         private readonly int minDifficulty = 1;
         private readonly int maxDifficulty = 10;
+
+        // NEW: strategy for selecting transactions
+        public TransactionSelectionStrategy TxSelectionStrategy { get; set; } = TransactionSelectionStrategy.First;
+        private Random rng = new Random();
 
         public Blockchain()
         {
@@ -42,26 +55,75 @@ namespace BlockchainAssignment
             return blocks[blocks.Count - 1];
         }
 
-        public List<Transaction> GetPendingTransactions()
-        {
-            int n = Math.Min(transactionsPerBlock, transactionPool.Count);
-            var txs = transactionPool.GetRange(0, n);
-            transactionPool.RemoveRange(0, n);
-            return txs;
-        }
-
         /// <summary>
         /// Mines a new block with the pending transactions and adjusts difficulty.
         /// </summary>
         public void AddBlock(string minerAddress)
         {
-            // Create and mine next block
-            var pending = GetPendingTransactions();
+            // Select and remove according to strategy
+            var pending = GetPendingTransactions(minerAddress);
             var next = new Block(GetLastBlock(), pending, minerAddress);
             blocks.Add(next);
 
-            // Adjust difficulty based on the time it took to mine the last cycle
+            // Adjust difficulty based on timing
             AdjustDifficulty();
+        }
+
+        /// <summary>
+        /// Selects up to transactionsPerBlock from the pool per current strategy.
+        /// </summary>
+        private List<Transaction> GetPendingTransactions(string minerAddress)
+        {
+            IEnumerable<Transaction> pool = transactionPool;
+            List<Transaction> selected;
+
+            switch (TxSelectionStrategy)
+            {
+                case TransactionSelectionStrategy.Greedy:
+                    selected = pool
+                        .OrderByDescending(tx => tx.Fee)
+                        .Take(transactionsPerBlock)
+                        .ToList();
+                    break;
+
+                case TransactionSelectionStrategy.Altruistic:
+                    selected = pool
+                        .OrderBy(tx => tx.Timestamp)
+                        .Take(transactionsPerBlock)
+                        .ToList();
+                    break;
+
+                case TransactionSelectionStrategy.Random:
+                    selected = pool
+                        .OrderBy(_ => rng.Next())
+                        .Take(transactionsPerBlock)
+                        .ToList();
+                    break;
+
+                case TransactionSelectionStrategy.AddressPreference:
+                    var preferred = pool
+                        .Where(tx => tx.SenderAddress == minerAddress
+                                  || tx.RecipientAddress == minerAddress);
+                    var others = pool.Except(preferred);
+                    selected = preferred
+                        .Concat(others)
+                        .Take(transactionsPerBlock)
+                        .ToList();
+                    break;
+
+                case TransactionSelectionStrategy.First:
+                default:
+                    selected = pool
+                        .Take(transactionsPerBlock)
+                        .ToList();
+                    break;
+            }
+
+            // remove from pool
+            foreach (var tx in selected)
+                transactionPool.Remove(tx);
+
+            return selected;
         }
 
         /// <summary>
@@ -74,15 +136,12 @@ namespace BlockchainAssignment
             if (count % adjustmentInterval != 0)
                 return;
 
-            // Block at the start of this cycle
             var oldBlock = blocks[count - adjustmentInterval];
-            // Most recent block
             var newBlock = GetLastBlock();
 
             double actual = (newBlock.Timestamp - oldBlock.Timestamp).TotalSeconds;
             double expected = targetBlockInterval.TotalSeconds * adjustmentInterval;
 
-            // Proportional retarget: scale difficulty by time ratio
             double ratio = expected / actual;
             int diff = (int)Math.Round(Block.Difficulty * ratio);
 
@@ -137,7 +196,7 @@ namespace BlockchainAssignment
                     if (tx.Hash != expectedTh)
                         return $"Invalid transaction hash {tx.Hash} in block {i}.";
 
-                    bool sigOk = BlockchainAssignment.Wallet.Wallet.ValidateSignature(
+                    bool sigOk = Wallet.Wallet.ValidateSignature(
                         tx.SenderAddress, tx.Hash, tx.Signature);
                     if (!sigOk)
                         return $"Invalid signature for tx {tx.Hash} in block {i}.";

@@ -50,6 +50,7 @@ namespace BlockchainAssignment
             this.btnPrintPool = new System.Windows.Forms.Button();
             this.btnValidateChain = new System.Windows.Forms.Button();
             this.btnCheckBalance = new System.Windows.Forms.Button();
+            this.cmbPreference = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownIndex)).BeginInit();
             this.SuspendLayout();
             // 
@@ -241,12 +242,21 @@ namespace BlockchainAssignment
             this.btnCheckBalance.UseVisualStyleBackColor = true;
             this.btnCheckBalance.Click += new System.EventHandler(this.btnCheckBalance_Click);
             // 
+            // cmbPreference
+            // 
+            this.cmbPreference.FormattingEnabled = true;
+            this.cmbPreference.Location = new System.Drawing.Point(236, 398);
+            this.cmbPreference.Name = "cmbPreference";
+            this.cmbPreference.Size = new System.Drawing.Size(121, 21);
+            this.cmbPreference.TabIndex = 21;
+            // 
             // BlockchainApp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.ClientSize = new System.Drawing.Size(681, 481);
+            this.Controls.Add(this.cmbPreference);
             this.Controls.Add(this.btnCheckBalance);
             this.Controls.Add(this.btnValidateChain);
             this.Controls.Add(this.btnPrintPool);
@@ -301,6 +311,7 @@ namespace BlockchainAssignment
         private System.Windows.Forms.Button btnPrintPool;
         private System.Windows.Forms.Button btnValidateChain;
         private System.Windows.Forms.Button btnCheckBalance;
+        private System.Windows.Forms.ComboBox cmbPreference;
     }
 }
 

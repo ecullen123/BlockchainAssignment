@@ -18,16 +18,31 @@ namespace BlockchainAssignment
         public BlockchainApp()
         {
             InitializeComponent();
+
+            // Initialise blockchain
             blockchain = new Blockchain();
             SetOutputText("New blockchain initialised!");
 
+            // Configure index picker
             numericUpDownIndex.Minimum = 0;
             numericUpDownIndex.Maximum = blockchain.blocks.Count - 1;
 
+            // Populate and default the transaction‐selection dropdown
+            cmbPreference.Items.AddRange(new object[] {
+                "First",
+                "Greedy",
+                "Altruistic",
+                "Random",
+                "Address Preference"
+            });
+            cmbPreference.SelectedIndex = 0;
+
+            // Wire up events
             btnValidateKeys.Enabled = false;
             txtPrivateKey.TextChanged += txtPrivateKey_TextChanged;
             btnValidateChain.Click += btnValidateChain_Click;
             btnCheckBalance.Click += btnCheckBalance_Click;
+            btnGenerateBlock.Click += btnGenerateBlock_Click;
         }
 
         private void SetOutputText(string text)
@@ -53,14 +68,14 @@ namespace BlockchainAssignment
         private void btnGenerateWallet_Click(object sender, EventArgs e)
         {
             string privKey;
-            var wallet = new BlockchainAssignment.Wallet.Wallet(out privKey);
+            var wallet = new Wallet.Wallet(out privKey);
             txtPublicKey.Text = wallet.publicID;
             txtPrivateKey.Text = privKey;
         }
 
         private void btnValidateKeys_Click(object sender, EventArgs e)
         {
-            bool ok = BlockchainAssignment.Wallet.Wallet.ValidatePrivateKey(
+            bool ok = Wallet.Wallet.ValidatePrivateKey(
                 txtPrivateKey.Text, txtPublicKey.Text);
             SetOutputText(ok ? "Keys are valid" : "Keys are invalid");
         }
@@ -80,7 +95,7 @@ namespace BlockchainAssignment
             string recipient = txtRecipientAddress.Text.Trim();
 
             // Verify the private key matches the public key
-            if (!BlockchainAssignment.Wallet.Wallet.ValidatePrivateKey(senderPriv, senderPub))
+            if (!Wallet.Wallet.ValidatePrivateKey(senderPriv, senderPub))
             {
                 MessageBox.Show(
                     "The private key does not match the public key.",
@@ -92,10 +107,8 @@ namespace BlockchainAssignment
             }
 
             // Parse amount and fee
-            decimal amount;
-            decimal fee;
-            if (!decimal.TryParse(txtAmount.Text.Trim(), out amount) ||
-                !decimal.TryParse(txtFee.Text.Trim(), out fee))
+            if (!decimal.TryParse(txtAmount.Text.Trim(), out var amount) ||
+                !decimal.TryParse(txtFee.Text.Trim(), out var fee))
             {
                 MessageBox.Show(
                     "Please enter valid numeric values for Amount and Fee.",
@@ -107,20 +120,20 @@ namespace BlockchainAssignment
             }
 
             // Check sufficient balance
-         // decimal balance = blockchain.GetBalance(senderPub);
-       //   decimal cost = amount + fee;
-       //   if (balance < cost)
-       //   {
-         //     MessageBox.Show(
-          //        $"Insufficient funds. Your balance is {balance}, but you need {cost}.",
-            //      "Insufficient Funds",
-            //      MessageBoxButtons.OK,
-            //      MessageBoxIcon.Warning
-          //    );
-          //    return;
-        //  }
+         //   decimal balance = blockchain.GetBalance(senderPub);
+          //  decimal cost = amount + fee;
+          //  if (balance < cost)
+         //   {
+           //     MessageBox.Show(
+             //       $"Insufficient funds. Your balance is {balance}, but you need {cost}.",
+             //       "Insufficient Funds",
+              //      MessageBoxButtons.OK,
+              //      MessageBoxIcon.Warning
+              //  );
+             //   return;
+         //   }
 
-            //All checks passed—create and queue the transaction
+            // All checks passed — create and queue the transaction
             try
             {
                 var tx = new Transaction(
@@ -130,7 +143,6 @@ namespace BlockchainAssignment
                     fee,
                     senderPriv
                 );
-
                 blockchain.transactionPool.Add(tx);
                 SetOutputText(tx.GetTransactionData());
             }
@@ -147,14 +159,17 @@ namespace BlockchainAssignment
 
         private void btnGenerateBlock_Click(object sender, EventArgs e)
         {
-            var pending = blockchain.GetPendingTransactions();
-            var nb = new Block(
-                blockchain.GetLastBlock(),
-                pending,
-                txtPublicKey.Text.Trim());
-            blockchain.blocks.Add(nb);
+            // Update the blockchain's selection strategy from the dropdown
+            string choice = cmbPreference.SelectedItem.ToString().Replace(" ", "");
+            blockchain.TxSelectionStrategy = (TransactionSelectionStrategy)
+                Enum.Parse(typeof(TransactionSelectionStrategy), choice);
+
+            // Mine and add the new block
+            blockchain.AddBlock(txtPublicKey.Text.Trim());
+
+            // Update UI
             numericUpDownIndex.Maximum = blockchain.blocks.Count - 1;
-            SetOutputText(nb.GetBlockData());
+            SetOutputText(blockchain.GetLastBlock().GetBlockData());
         }
 
         private void btnValidateChain_Click(object sender, EventArgs e)
@@ -167,8 +182,12 @@ namespace BlockchainAssignment
             var addr = txtPublicKey.Text.Trim();
             if (string.IsNullOrWhiteSpace(addr))
             {
-                MessageBox.Show("Generate or enter a public key first.", "No Address",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(
+                    "Generate or enter a public key first.",
+                    "No Address",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning
+                );
                 return;
             }
             SetOutputText(blockchain.GetBalanceAndTransactions(addr));
