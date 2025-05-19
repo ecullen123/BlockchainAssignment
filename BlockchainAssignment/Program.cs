@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -9,9 +10,13 @@ namespace BlockchainAssignment
 {
     static class Program
     {
+   
+
         [STAThread]
         static void Main(string[] args)
         {
+           
+
             // If run with "--bench", execute the mining benchmark instead of launching the UI
             if (args.Contains("--bench"))
             {

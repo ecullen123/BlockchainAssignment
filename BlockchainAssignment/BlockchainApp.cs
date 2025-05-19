@@ -228,5 +228,69 @@ namespace BlockchainAssignment
         }
 
         private void BlockchainApp_Load(object sender, EventArgs e) { }
+
+        private void btnCreateCampaign_Click(object sender, EventArgs e)
+        {
+            var owner = txtOwnerAddress.Text;
+            var ownerPrivKey = txtOwnerPrivKey.Text;
+            var goal = numGoalAmount.Value;
+            var deadline = dtpDeadline.Value;
+
+            string id = blockchain.CreateCampaign(owner, goal, deadline);
+            lstCampaigns.Items.Add(id);
+            MessageBox.Show($"Campaign created: {id}");
+        }
+
+        private void btnContribute_Click(object sender, EventArgs e)
+        {
+            if (lstCampaigns.SelectedItem == null) return;
+            var campaignId = lstCampaigns.SelectedItem.ToString();
+            var backer = txtBackerAddress.Text;
+            var backerPrivKey = txtBackerPrivKey.Text;
+            var amount = numPledgeAmount.Value;
+
+            blockchain.ContributeToCampaign(campaignId, backer, amount, backerPrivKey);
+            MessageBox.Show("Pledge recorded.");
+        }
+
+        private void btnFinalize_Click(object sender, EventArgs e)
+        {
+            if (lstCampaigns.SelectedItem == null) return;
+            var campaignId = lstCampaigns.SelectedItem.ToString();
+            blockchain.FinalizeCampaign(campaignId);
+            RefreshCampaignDetails(campaignId);
+            MessageBox.Show("Campaign finalized.");
+        }
+
+        private void btnWithdraw_Click(object sender, EventArgs e)
+        {
+            if (lstCampaigns.SelectedItem == null) return;
+            var campaignId = lstCampaigns.SelectedItem.ToString();
+            var ownerPrivKey = txtOwnerPrivKey.Text;
+
+            blockchain.WithdrawCampaignFunds(campaignId, ownerPrivKey);
+            MessageBox.Show("Funds withdrawn to owner.");
+        }
+
+        private void btnRefund_Click(object sender, EventArgs e)
+        {
+            if (lstCampaigns.SelectedItem == null) return;
+            var campaignId = lstCampaigns.SelectedItem.ToString();
+            var backer = txtBackerAddress.Text;
+            var backerPrivKey = txtBackerPrivKey.Text;
+
+            blockchain.RefundContribution(campaignId, backer, backerPrivKey);
+            MessageBox.Show("Refund issued to backer.");
+        }
+        private void RefreshCampaignDetails(string campaignId)
+        {
+            var c = blockchain.Campaigns.First(x => x.ContractId == campaignId);
+            lblTotalRaised.Text = $"Total Raised: {c.TotalRaised}";
+            lblIsFinalized.Text = $"Finalized: {c.IsFinalized}";
+            lblIsSuccessful.Text = $"Successful: {c.IsSuccessful}";
+
+            btnWithdraw.Enabled = c.IsFinalized && c.IsSuccessful;
+            btnRefund.Enabled = c.IsFinalized && !c.IsSuccessful;
+        }
     }
 }

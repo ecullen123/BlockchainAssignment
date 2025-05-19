@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
+using BlockchainAssignment.SmartContracts;
 
 
 
@@ -35,6 +36,9 @@ namespace BlockchainAssignment
         // NEW: strategy for selecting transactions
         public TransactionSelectionStrategy TxSelectionStrategy { get; set; } = TransactionSelectionStrategy.First;
         private Random rng = new Random();
+
+        // NEW: crowdfunding campaign pool
+        public List<CrowdfundingContract> Campaigns = new List<CrowdfundingContract>();
 
         public Blockchain()
         {
@@ -248,6 +252,46 @@ namespace BlockchainAssignment
                 }
             }
             return balance;
+        }
+
+        // NEW: Crowdfunding contract integration methods
+        public string CreateCampaign(string ownerAddress, decimal goal, DateTime deadline)
+        {
+            var c = new CrowdfundingContract(ownerAddress, goal, deadline);
+            Campaigns.Add(c);
+            return c.ContractId;
+        }
+
+        public void ContributeToCampaign(string contractId, string backerAddress, decimal amount, string backerPrivateKey)
+        {
+            var c = Campaigns.FirstOrDefault(x => x.ContractId == contractId);
+            if (c == null)
+                throw new InvalidOperationException("Campaign not found.");
+            c.Contribute(backerAddress, amount, backerPrivateKey);
+        }
+
+        public void FinalizeCampaign(string contractId)
+        {
+            var c = Campaigns.FirstOrDefault(x => x.ContractId == contractId);
+            if (c == null)
+                throw new InvalidOperationException("Campaign not found.");
+            c.Finalize();
+        }
+
+        public void WithdrawCampaignFunds(string contractId, string ownerPrivateKey)
+        {
+            var c = Campaigns.FirstOrDefault(x => x.ContractId == contractId);
+            if (c == null)
+                throw new InvalidOperationException("Campaign not found.");
+            c.WithdrawFunds(ownerPrivateKey, this);
+        }
+
+        public void RefundContribution(string contractId, string backerAddress, string backerPrivateKey)
+        {
+            var c = Campaigns.FirstOrDefault(x => x.ContractId == contractId);
+            if (c == null)
+                throw new InvalidOperationException("Campaign not found.");
+            c.Refund(backerAddress, backerPrivateKey, this);
         }
 
         public override string ToString()
