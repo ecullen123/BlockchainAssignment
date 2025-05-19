@@ -275,7 +275,7 @@ namespace BlockchainAssignment
             var c = Campaigns.FirstOrDefault(x => x.ContractId == contractId);
             if (c == null)
                 throw new InvalidOperationException("Campaign not found.");
-            c.Finalize();
+            c.FinalizeCampaign();
         }
 
         public void WithdrawCampaignFunds(string contractId, string ownerPrivateKey)

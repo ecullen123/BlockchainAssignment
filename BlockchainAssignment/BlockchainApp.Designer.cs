@@ -71,6 +71,13 @@ namespace BlockchainAssignment
             this.lblTotalRaised = new System.Windows.Forms.Label();
             this.lblIsFinalized = new System.Windows.Forms.Label();
             this.lblIsSuccessful = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
+            this.splitter1 = new System.Windows.Forms.Splitter();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.label14 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownIndex)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numGoalAmount)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numPledgeAmount)).BeginInit();
@@ -274,7 +281,7 @@ namespace BlockchainAssignment
             // 
             // btnCreateCampaign
             // 
-            this.btnCreateCampaign.Location = new System.Drawing.Point(257, 539);
+            this.btnCreateCampaign.Location = new System.Drawing.Point(105, 602);
             this.btnCreateCampaign.Name = "btnCreateCampaign";
             this.btnCreateCampaign.Size = new System.Drawing.Size(75, 39);
             this.btnCreateCampaign.TabIndex = 22;
@@ -284,7 +291,7 @@ namespace BlockchainAssignment
             // 
             // txtOwnerAddress
             // 
-            this.txtOwnerAddress.Location = new System.Drawing.Point(93, 522);
+            this.txtOwnerAddress.Location = new System.Drawing.Point(105, 503);
             this.txtOwnerAddress.Name = "txtOwnerAddress";
             this.txtOwnerAddress.Size = new System.Drawing.Size(100, 20);
             this.txtOwnerAddress.TabIndex = 23;
@@ -292,15 +299,15 @@ namespace BlockchainAssignment
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(8, 525);
+            this.label6.Location = new System.Drawing.Point(8, 503);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(79, 13);
+            this.label6.Size = new System.Drawing.Size(91, 13);
             this.label6.TabIndex = 24;
-            this.label6.Text = "Owner Address";
+            this.label6.Text = "Owner Public Key";
             // 
             // numGoalAmount
             // 
-            this.numGoalAmount.Location = new System.Drawing.Point(93, 550);
+            this.numGoalAmount.Location = new System.Drawing.Point(105, 550);
             this.numGoalAmount.Name = "numGoalAmount";
             this.numGoalAmount.Size = new System.Drawing.Size(120, 20);
             this.numGoalAmount.TabIndex = 25;
@@ -316,7 +323,7 @@ namespace BlockchainAssignment
             // 
             // dtpDeadline
             // 
-            this.dtpDeadline.Location = new System.Drawing.Point(93, 576);
+            this.dtpDeadline.Location = new System.Drawing.Point(105, 576);
             this.dtpDeadline.Name = "dtpDeadline";
             this.dtpDeadline.Size = new System.Drawing.Size(135, 20);
             this.dtpDeadline.TabIndex = 27;
@@ -324,7 +331,7 @@ namespace BlockchainAssignment
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(12, 582);
+            this.label8.Location = new System.Drawing.Point(8, 582);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(75, 13);
             this.label8.TabIndex = 28;
@@ -332,7 +339,7 @@ namespace BlockchainAssignment
             // 
             // btnContribute
             // 
-            this.btnContribute.Location = new System.Drawing.Point(500, 503);
+            this.btnContribute.Location = new System.Drawing.Point(530, 557);
             this.btnContribute.Name = "btnContribute";
             this.btnContribute.Size = new System.Drawing.Size(75, 39);
             this.btnContribute.TabIndex = 29;
@@ -342,7 +349,7 @@ namespace BlockchainAssignment
             // 
             // btnWithdraw
             // 
-            this.btnWithdraw.Location = new System.Drawing.Point(500, 554);
+            this.btnWithdraw.Location = new System.Drawing.Point(530, 599);
             this.btnWithdraw.Name = "btnWithdraw";
             this.btnWithdraw.Size = new System.Drawing.Size(75, 23);
             this.btnWithdraw.TabIndex = 30;
@@ -352,7 +359,7 @@ namespace BlockchainAssignment
             // 
             // btnRefund
             // 
-            this.btnRefund.Location = new System.Drawing.Point(594, 541);
+            this.btnRefund.Location = new System.Drawing.Point(530, 623);
             this.btnRefund.Name = "btnRefund";
             this.btnRefund.Size = new System.Drawing.Size(75, 23);
             this.btnRefund.TabIndex = 31;
@@ -363,21 +370,21 @@ namespace BlockchainAssignment
             // lstCampaigns
             // 
             this.lstCampaigns.FormattingEnabled = true;
-            this.lstCampaigns.Location = new System.Drawing.Point(391, 503);
+            this.lstCampaigns.Location = new System.Drawing.Point(530, 500);
             this.lstCampaigns.Name = "lstCampaigns";
-            this.lstCampaigns.Size = new System.Drawing.Size(93, 30);
+            this.lstCampaigns.Size = new System.Drawing.Size(139, 56);
             this.lstCampaigns.TabIndex = 32;
             // 
             // txtBackerAddress
             // 
-            this.txtBackerAddress.Location = new System.Drawing.Point(569, 471);
+            this.txtBackerAddress.Location = new System.Drawing.Point(424, 500);
             this.txtBackerAddress.Name = "txtBackerAddress";
             this.txtBackerAddress.Size = new System.Drawing.Size(100, 20);
             this.txtBackerAddress.TabIndex = 33;
             // 
             // numPledgeAmount
             // 
-            this.numPledgeAmount.Location = new System.Drawing.Point(582, 514);
+            this.numPledgeAmount.Location = new System.Drawing.Point(424, 557);
             this.numPledgeAmount.Name = "numPledgeAmount";
             this.numPledgeAmount.Size = new System.Drawing.Size(87, 20);
             this.numPledgeAmount.TabIndex = 34;
@@ -385,15 +392,15 @@ namespace BlockchainAssignment
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(481, 480);
+            this.label9.Location = new System.Drawing.Point(324, 503);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(82, 13);
+            this.label9.Size = new System.Drawing.Size(94, 13);
             this.label9.TabIndex = 35;
-            this.label9.Text = "Backer Address";
+            this.label9.Text = "Backer Public Key";
             // 
             // btnFinalize
             // 
-            this.btnFinalize.Location = new System.Drawing.Point(484, 582);
+            this.btnFinalize.Location = new System.Drawing.Point(186, 615);
             this.btnFinalize.Name = "btnFinalize";
             this.btnFinalize.Size = new System.Drawing.Size(75, 23);
             this.btnFinalize.TabIndex = 36;
@@ -403,14 +410,14 @@ namespace BlockchainAssignment
             // 
             // txtOwnerPrivKey
             // 
-            this.txtOwnerPrivKey.Location = new System.Drawing.Point(221, 522);
+            this.txtOwnerPrivKey.Location = new System.Drawing.Point(105, 522);
             this.txtOwnerPrivKey.Name = "txtOwnerPrivKey";
             this.txtOwnerPrivKey.Size = new System.Drawing.Size(100, 20);
             this.txtOwnerPrivKey.TabIndex = 37;
             // 
             // txtBackerPrivKey
             // 
-            this.txtBackerPrivKey.Location = new System.Drawing.Point(569, 488);
+            this.txtBackerPrivKey.Location = new System.Drawing.Point(424, 526);
             this.txtBackerPrivKey.Name = "txtBackerPrivKey";
             this.txtBackerPrivKey.Size = new System.Drawing.Size(100, 20);
             this.txtBackerPrivKey.TabIndex = 38;
@@ -418,29 +425,90 @@ namespace BlockchainAssignment
             // lblTotalRaised
             // 
             this.lblTotalRaised.AutoSize = true;
-            this.lblTotalRaised.Location = new System.Drawing.Point(267, 609);
+            this.lblTotalRaised.Location = new System.Drawing.Point(264, 599);
             this.lblTotalRaised.Name = "lblTotalRaised";
-            this.lblTotalRaised.Size = new System.Drawing.Size(41, 13);
+            this.lblTotalRaised.Size = new System.Drawing.Size(70, 13);
             this.lblTotalRaised.TabIndex = 39;
-            this.lblTotalRaised.Text = "label10";
+            this.lblTotalRaised.Text = "Total Raised:";
             // 
             // lblIsFinalized
             // 
             this.lblIsFinalized.AutoSize = true;
-            this.lblIsFinalized.Location = new System.Drawing.Point(266, 626);
+            this.lblIsFinalized.Location = new System.Drawing.Point(267, 615);
             this.lblIsFinalized.Name = "lblIsFinalized";
-            this.lblIsFinalized.Size = new System.Drawing.Size(41, 13);
+            this.lblIsFinalized.Size = new System.Drawing.Size(51, 13);
             this.lblIsFinalized.TabIndex = 40;
-            this.lblIsFinalized.Text = "label10";
+            this.lblIsFinalized.Text = "Finalised:";
             // 
             // lblIsSuccessful
             // 
             this.lblIsSuccessful.AutoSize = true;
-            this.lblIsSuccessful.Location = new System.Drawing.Point(331, 626);
+            this.lblIsSuccessful.Location = new System.Drawing.Point(264, 628);
             this.lblIsSuccessful.Name = "lblIsSuccessful";
-            this.lblIsSuccessful.Size = new System.Drawing.Size(41, 13);
+            this.lblIsSuccessful.Size = new System.Drawing.Size(62, 13);
             this.lblIsSuccessful.TabIndex = 41;
-            this.lblIsSuccessful.Text = "label10";
+            this.lblIsSuccessful.Text = "Successful:";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(8, 526);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(95, 13);
+            this.label10.TabIndex = 42;
+            this.label10.Text = "Owner Private Key";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(320, 529);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(98, 13);
+            this.label11.TabIndex = 43;
+            this.label11.Text = "Backer Private Key";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(556, 484);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(78, 13);
+            this.label12.TabIndex = 44;
+            this.label12.Text = "Campaigns List";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(364, 564);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(43, 13);
+            this.label13.TabIndex = 45;
+            this.label13.Text = "Amount";
+            // 
+            // splitter1
+            // 
+            this.splitter1.Location = new System.Drawing.Point(0, 0);
+            this.splitter1.Name = "splitter1";
+            this.splitter1.Size = new System.Drawing.Size(3, 651);
+            this.splitter1.TabIndex = 46;
+            this.splitter1.TabStop = false;
+            // 
+            // panel1
+            // 
+            this.panel1.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.panel1.Location = new System.Drawing.Point(19, 480);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(632, 2);
+            this.panel1.TabIndex = 47;
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(285, 476);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(70, 13);
+            this.label14.TabIndex = 48;
+            this.label14.Text = "CrowdFunder";
             // 
             // BlockchainApp
             // 
@@ -448,6 +516,13 @@ namespace BlockchainAssignment
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.ClientSize = new System.Drawing.Size(681, 651);
+            this.Controls.Add(this.label14);
+            this.Controls.Add(this.panel1);
+            this.Controls.Add(this.splitter1);
+            this.Controls.Add(this.label13);
+            this.Controls.Add(this.label12);
+            this.Controls.Add(this.label11);
+            this.Controls.Add(this.label10);
             this.Controls.Add(this.lblIsSuccessful);
             this.Controls.Add(this.lblIsFinalized);
             this.Controls.Add(this.lblTotalRaised);
@@ -546,6 +621,13 @@ namespace BlockchainAssignment
         private System.Windows.Forms.Label lblTotalRaised;
         private System.Windows.Forms.Label lblIsFinalized;
         private System.Windows.Forms.Label lblIsSuccessful;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Splitter splitter1;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Label label14;
     }
 }
 

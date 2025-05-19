@@ -31,6 +31,7 @@ namespace BlockchainAssignment.SmartContracts
             Deadline = deadline;
             ContractId = Guid.NewGuid().ToString();
             IsFinalized = false;
+            IsSuccessful = false;
         }
 
         /// <summary>
@@ -41,7 +42,6 @@ namespace BlockchainAssignment.SmartContracts
             if (DateTime.Now > Deadline)
                 throw new InvalidOperationException("Cannot contribute: campaign deadline has passed.");
 
-            // Record the contribution (offline demo token lockup simulated)
             if (!_contributions.ContainsKey(backerAddress))
                 _contributions[backerAddress] = 0m;
             _contributions[backerAddress] += amount;
@@ -49,8 +49,9 @@ namespace BlockchainAssignment.SmartContracts
 
         /// <summary>
         /// After deadline, determine success or failure.
+        /// Renamed to avoid collision with System.Object.Finalize.
         /// </summary>
-        public void Finalize()
+        public void FinalizeCampaign()
         {
             if (IsFinalized)
                 throw new InvalidOperationException("Campaign already finalized.");
@@ -71,9 +72,8 @@ namespace BlockchainAssignment.SmartContracts
             if (!IsSuccessful)
                 throw new InvalidOperationException("Cannot withdraw: campaign failed.");
 
-            // Mint a transaction from escrow to owner
             var tx = new Transaction(
-                "escrow",              // from escrow pool
+                "escrow",
                 OwnerAddress,
                 TotalRaised,
                 0m,

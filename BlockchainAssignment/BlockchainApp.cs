@@ -250,6 +250,10 @@ namespace BlockchainAssignment
             var amount = numPledgeAmount.Value;
 
             blockchain.ContributeToCampaign(campaignId, backer, amount, backerPrivKey);
+
+            // ← update UI immediately
+            RefreshCampaignDetails(campaignId);
+
             MessageBox.Show("Pledge recorded.");
         }
 
@@ -269,9 +273,12 @@ namespace BlockchainAssignment
             var ownerPrivKey = txtOwnerPrivKey.Text;
 
             blockchain.WithdrawCampaignFunds(campaignId, ownerPrivKey);
+
+            // ← update UI immediately (total will drop to zero)
+            RefreshCampaignDetails(campaignId);
+
             MessageBox.Show("Funds withdrawn to owner.");
         }
-
         private void btnRefund_Click(object sender, EventArgs e)
         {
             if (lstCampaigns.SelectedItem == null) return;
@@ -280,6 +287,10 @@ namespace BlockchainAssignment
             var backerPrivKey = txtBackerPrivKey.Text;
 
             blockchain.RefundContribution(campaignId, backer, backerPrivKey);
+
+            // ← update UI immediately (that backer's refund)
+            RefreshCampaignDetails(campaignId);
+
             MessageBox.Show("Refund issued to backer.");
         }
         private void RefreshCampaignDetails(string campaignId)
